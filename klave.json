@@ -1,0 +1,13 @@
+{
+    "version": "1",
+    "name": "My trustless application",
+    "slug": "my-test-with-axel",
+    "branch": "*",
+    "applications": [
+        {
+            "name": "Hello World",
+            "version": "0.0.1",
+            "rootDir": "/apps/hello_world"
+        }
+    ]
+}
