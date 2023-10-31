@@ -1,5 +1,23 @@
-import { Notifier, Ledger, JSON } from '@klave/sdk';
+import { Notifier, Ledger, JSON, Crypto } from '@klave/sdk';
 import { FetchInput, FetchOutput, StoreInput, StoreOutput, ErrorMessage } from './types';
+import { encode as b64encode, decode as b64decode } from 'as-base64/assembly';
+
+const convertToNumberArray = function (input: Uint8Array): u8[] {
+    let ret: u8[] = []
+    for (let i = 0; i < input.length; ++i)
+        ret[i] = input[i];
+
+    return ret; 
+}
+
+const convertToUint8Array = function (input: u8[]): Uint8Array {
+    let value = new Uint8Array(input.length);
+    for (let i = 0; i < input.length; ++i)
+        value[i] = input[i];
+
+    return value;
+    
+}
 
 const myTableName = "my_storage_table";
 
@@ -8,6 +26,21 @@ const myTableName = "my_storage_table";
  */
 export function ping(): void {
     Notifier.sendString("pong");
+}
+
+/**
+* @query
+*/
+export function digest(input: string): void {
+    const digest = Crypto.SHA.digest(input);
+    if(digest)
+    {
+        const value = convertToUint8Array(digest);
+        const digestAsString = b64encode(value);
+        Notifier.sendJson<string>(digestAsString);
+    }else{
+        Notifier.sendJson<string>("ERROR: Generating SHA256 issue");
+    }
 }
 
 /**
