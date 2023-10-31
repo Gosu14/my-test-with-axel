@@ -5,6 +5,13 @@ const myTableName = "my_storage_table";
 
 /**
  * @query
+ */
+export function ping(): void {
+    Notifier.sendString("pong");
+}
+
+/**
+ * @query
  * @param {FetchInput} input - A parsed input argument
  */
 export function fetchValue(input: FetchInput): void {
