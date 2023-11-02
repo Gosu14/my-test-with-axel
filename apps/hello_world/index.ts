@@ -1,5 +1,5 @@
 import { Notifier, Ledger, JSON, Crypto } from '@klave/sdk';
-import { FetchInput, FetchOutput, StoreInput, StoreOutput, SignInput, SignOutput, VerifyInput, VerifyOutput, ErrorMessage } from './types';
+import { FetchInput, FetchOutput, StoreInput, StoreOutput, SignInput, SignOutput, VerifyInput, VerifyOutput, EncryptInput, EncryptOutput, DecryptInput, DecryptOutput, ErrorMessage } from './types';
 import { encode as b64encode, decode as b64decode } from 'as-base64/assembly';
 
 const convertToNumberArray = function (input: Uint8Array): u8[] {
@@ -66,6 +66,60 @@ export function fetchValue(input: FetchInput): void {
 /**
 * @query
 */
+export function encrypt(input: EncryptInput): void {
+    const key = Crypto.AES.getKey(input.keyName);
+
+    if (key) {
+        const messagCypher = key.encrypt(input.message);
+        if (messagCypher) {
+            const value = convertToUint8Array(messagCypher);
+            const cypherAsString = b64encode(value);
+
+            Notifier.sendJson<EncryptOutput>({
+                success: true,
+                cypher: cypherAsString
+            });
+        } else {
+            {
+                Notifier.sendJson<EncryptOutput>({
+                    success: false,
+                    cypher: ""
+                });
+            }
+        }
+    } else {
+        Notifier.sendJson<EncryptOutput>({
+            success: false,
+            cypher: ""
+        });
+    }
+}
+
+/**
+* @query
+*/
+export function decrypt(input: DecryptInput): void {
+    const key = Crypto.AES.getKey(input.keyName);
+    const cyph = b64decode(input.cypher);
+    const ret = convertToNumberArray(cyph);
+
+    if (key && ret) {
+        const messagCypher = key.decrypt(ret);
+        Notifier.sendJson<DecryptOutput>({
+            success: true,
+            message: messagCypher
+        });
+    } else {
+        Notifier.sendJson<DecryptOutput>({
+            success: false,
+            message: ""
+        });
+    }
+}
+
+/**
+* @query
+*/
 export function sign(input: SignInput): void {
     const key = Crypto.ECDSA.getKey(input.keyName);
     if(key)
@@ -114,6 +168,18 @@ export function verify(input: VerifyInput): void {
             success: false,
             isVerified: false
         });
+    }
+}
+
+/**
+* @transaction
+*/
+export function generateNewEncryptionKey(keyName: string): void {
+    const key = Crypto.AES.generateKey(keyName);
+    if (key) {
+        Notifier.sendJson<string>(`SUCCESS: Key '${keyName}' has been generated`);
+    } else {
+        Notifier.sendJson<string>(`ERROR: Key '${keyName}' has not been generated`);
     }
 }
 

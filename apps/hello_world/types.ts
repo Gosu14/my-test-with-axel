@@ -52,3 +52,27 @@ export class VerifyOutput {
     success!: boolean;
     isVerified!: boolean;
 }
+
+@serializable
+export class EncryptInput {
+    keyName!: string;
+    message!: string;
+}
+
+@serializable
+export class EncryptOutput {
+    success!: boolean;
+    cypher!: string;
+}
+
+@serializable
+export class DecryptInput {
+    keyName!: string;
+    cypher!: string;
+}
+
+@serializable
+export class DecryptOutput {
+    success!: boolean;
+    message!: string;
+}
