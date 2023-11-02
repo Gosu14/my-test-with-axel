@@ -25,7 +25,7 @@ const myTableName = "my_storage_table";
  * @query
  */
 export function ping(): void {
-    Notifier.sendString("pong-ping");
+    Notifier.sendString("pong-ping-boom");
 }
 
 /**
@@ -60,6 +60,18 @@ export function fetchValue(input: FetchInput): void {
             success: true,
             value
         });
+    }
+}
+
+/**
+* @transaction
+*/
+export function generateNewSigningKey(keyName: string): void {
+    const key = Crypto.ECDSA.generateKey(keyName);
+    if (key) {
+        Notifier.sendJson<string>(`SUCCESS: Key '${keyName}' has been generated`);
+    } else {
+        Notifier.sendJson<string>(`ERROR: Key '${keyName}' has not been generated`);
     }
 }
 
