@@ -1,5 +1,5 @@
 import { Notifier, Ledger, JSON, Crypto } from '@klave/sdk';
-import { FetchInput, FetchOutput, StoreInput, StoreOutput, ErrorMessage } from './types';
+import { FetchInput, FetchOutput, StoreInput, StoreOutput, SignInput, SignOutput, VerifyInput, VerifyOutput, ErrorMessage } from './types';
 import { encode as b64encode, decode as b64decode } from 'as-base64/assembly';
 
 const convertToNumberArray = function (input: Uint8Array): u8[] {
@@ -25,7 +25,7 @@ const myTableName = "my_storage_table";
  * @query
  */
 export function ping(): void {
-    Notifier.sendString("pong-ping-boom");
+    Notifier.sendString("pong-ping-boom-bada");
 }
 
 /**
@@ -59,6 +59,60 @@ export function fetchValue(input: FetchInput): void {
         Notifier.sendJson<FetchOutput>({
             success: true,
             value
+        });
+    }
+}
+
+/**
+* @query
+*/
+export function sign(input: SignInput): void {
+    const key = Crypto.ECDSA.getKey(input.keyName);
+    if(key)
+    {
+        const signature = key.sign(input.message);
+        if (signature) {
+            const value = convertToUint8Array(signature);
+            const signatureAsString = b64encode(value);
+
+            Notifier.sendJson<SignOutput>({
+                success: true,
+                signature: signatureAsString
+            });
+        } else {
+            {
+                Notifier.sendJson<SignOutput>({
+                    success: false,
+                    signature: ""
+                });
+            }
+        }
+    }else {
+        Notifier.sendJson<SignOutput>({
+            success: false,
+            signature: ""
+        });
+    }
+}
+
+/**
+* @query
+*/
+export function verify(input: VerifyInput): void {
+    const key = Crypto.ECDSA.getKey(input.keyName);
+    const signature = b64decode(input.signature);
+    const ret = convertToNumberArray(signature);
+
+    if (key && ret) {
+        const isGood = key.verify(input.message, ret);
+        Notifier.sendJson<VerifyOutput>({
+            success: true,
+            isVerified: isGood
+        });
+    } else {
+        Notifier.sendJson<VerifyOutput>({
+            success: false,
+            isVerified: false
         });
     }
 }

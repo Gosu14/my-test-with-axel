@@ -27,3 +27,28 @@ export class StoreInput {
 export class StoreOutput {
     success!: boolean;
 }
+
+@serializable
+export class SignInput {
+    keyName!: string;
+    message!: string;
+}
+
+@serializable
+export class SignOutput {
+    success!: boolean;
+    signature!: string;
+}
+
+@serializable
+export class VerifyInput {
+    keyName!: string;
+    message!: string;
+    signature!: string;
+}
+
+@serializable
+export class VerifyOutput {
+    success!: boolean;
+    isVerified!: boolean;
+}
