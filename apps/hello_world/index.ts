@@ -25,6 +25,9 @@ const myTableName = "my_storage_table";
  * @query
  */
 export function ping(): void {
+    Notifier.sendString("pong");
+    Notifier.sendString("pong-ping");
+    Notifier.sendString("pong-ping-boom");
     Notifier.sendString("pong-ping-boom-bada");
 }
 
